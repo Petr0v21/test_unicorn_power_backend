@@ -12,11 +12,14 @@ const validatePhoneNumber = (input_str: string) => {
 export const validateId = async (id: string) => {
   let id_type = '';
   const { valid } = await isEmailValid(id);
+
   if (valid) {
     id_type = 'email';
   }
+
   if (validatePhoneNumber(id)) {
     id_type = 'phone';
   }
+
   return id_type;
 };

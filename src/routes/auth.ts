@@ -15,11 +15,14 @@ router.post('/signup', async (req, res) => {
       });
     }
     const id_type = await validateId(req.body.id);
+
     if (!id_type)
       return res.status(400).send({
         message: 'Please provide a valid email address or phone number'
       });
+
     const user = await User.findOne({ id: req.body.id });
+
     if (user)
       return res.status(400).json({
         error: true,
@@ -29,12 +32,19 @@ router.post('/signup', async (req, res) => {
     const salt = await bcrypt.genSalt(Number(process.env.SALT));
     const hashPassword = await bcrypt.hash(req.body.password, salt);
 
-    const candidate = await new User({
+    const candidate = new User({
       ...req.body,
       id_type,
       password: hashPassword
-    }).save();
-    const { accessToken, refreshToken } = await generateTokens(candidate);
+    });
+
+    await candidate.save();
+
+    const { accessToken, refreshToken } = await generateTokens({
+      _id: candidate._id.toString(),
+      roles: candidate.roles
+    });
+
     res.status(201).json({
       error: false,
       message: 'Account created sucessfully',
@@ -75,7 +85,10 @@ router.post('/signin', async (req, res) => {
         .status(401)
         .json({ error: true, message: 'Invalid email or password' });
 
-    const { accessToken, refreshToken } = await generateTokens(user);
+    const { accessToken, refreshToken } = await generateTokens({
+      _id: user._id.toString(),
+      roles: user.roles
+    });
 
     res.status(200).json({
       error: false,

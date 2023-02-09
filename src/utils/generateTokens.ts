@@ -3,7 +3,7 @@ import UserToken from '../models/UserToken';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
-const generateTokens = async (user: any) => {
+const generateTokens = async (user: { _id: string; roles: string[] }) => {
   try {
     const payload = { _id: user._id, roles: user.roles };
     const accessToken = jwt.sign(

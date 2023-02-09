@@ -6,19 +6,13 @@ import verifyRefreshToken from '../utils/verifyRefreshToken';
 dotenv.config();
 const router = Router();
 
-type ResponseType = {
-  tokenDetails: {
-    _id: string;
-    roles: string;
-  };
-};
 // get new access token
 router.post('/', async (req, res) => {
   verifyRefreshToken(req.body.refreshToken)
-    .then((respons: ResponseType | any) => {
+    .then((response) => {
       const payload = {
-        _id: respons.tokenDetails._id,
-        roles: respons.tokenDetails.roles
+        _id: response.tokenDetails._id,
+        roles: response.tokenDetails.roles
       };
       const accessToken = jwt.sign(
         payload,
@@ -53,6 +47,7 @@ router.get('/logout_all=:all', async (req, res) => {
         .json({ error: false, message: 'Logged Out Sucessfully' });
 
     await userToken.remove();
+
     res.status(200).json({ error: false, message: 'Logged Out Sucessfully' });
   } catch (err) {
     console.log(err);
